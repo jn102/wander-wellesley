@@ -91,6 +91,35 @@ def add_activity(eid):
             flash(f'Activity with {eid} added successfully')
             return redirect(url_for("index"))
 
+@app.route('/createaccount/', methods = ['GET', 'POST'])
+def create_account():
+    if request.method == 'GET':
+        return render_template('createAccount.html', page_title='Create Account')
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        if not email.endswith("@wellesley.edu"):
+            flash("Must use a Wellesley Email")
+            return render_template('createAccount.html', page_title='Create Account')
+        else:
+            with dbi.connect() as conn:
+                with dbi.dict_cursor(conn) as curs:
+                    curs.execute('''
+                            select email from user
+                            where email = %s''',
+                            [email])
+                    if curs.fetchall():
+                        flash("There is already an account using " + email)
+                        return render_template('createAccount.html', page_title='Create Account')
+                    curs.execute('''INSERT INTO user(email, name)
+                                    VALUES(%s, %s)''',
+                                    [email, name])
+                    conn.commit()
+                    flash("Account created for " + email)
+
+        return redirect(url_for('index'))
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:
