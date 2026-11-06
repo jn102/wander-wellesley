@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
+import db
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -15,7 +16,7 @@ app.secret_key = secrets.token_hex()
 # For CRUD and Ajax, use your personal db
 # For project work, use your team db
 
-print(dbi.conf('ww123_db'))
+print(dbi.conf('wanderw_db'))
 
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
@@ -28,6 +29,67 @@ def index():
 def about():
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
+
+@app.route('/add-establishment/', methods = ["GET", "POST"])
+def add_establishment():
+    if request.method == "GET":
+        return render_template('add-establishments.html')
+    elif request.method == "POST":
+        with dbi.connect() as conn:
+            info = request.form
+            db.add_establishment(conn, info)
+            last_insert_id = db.last_insert_id(conn)['last_insert_id()']
+        if info["type"] == "Hotel":
+            return redirect(url_for("add_hotel", eid=last_insert_id))
+        elif info["type"] == "Restaurant":
+            return redirect(url_for("add_restaurant", eid=last_insert_id))
+        else:
+            return redirect(url_for("add_activity", eid=last_insert_id))
+
+@app.route('/add-restaurant/<eid>', methods = ["GET", "POST"])
+def add_restaurant(eid):
+    with dbi.connect() as conn:
+        if request.method == "GET":
+            if db.get_establishment(conn, eid):
+                return render_template("add-restaurant.html", eid=eid)
+            else:
+                flash(f'Establishment not found.')
+                return redirect(url_for("index"))
+        else:
+            info = request.form
+            db.add_restaurant(conn, eid, info)
+            flash(f'Restaurant with {eid} added successfully')
+            return redirect(url_for("index"))
+
+@app.route('/add-hotel/<eid>', methods = ["GET", "POST"])
+def add_hotel(eid):
+    with dbi.connect() as conn:
+        if request.method == "GET":
+            if db.get_establishment(conn, eid):
+                return render_template("add-hotel.html", eid=eid)
+            else:
+                flash(f'Establishment not found.')
+                return redirect(url_for("index"))
+        else:
+            info = request.form
+            db.add_hotel(conn, eid, info)
+            flash(f'Hotel with {eid} added successfully')
+            return redirect(url_for("index"))
+
+@app.route('/add-activity/<eid>', methods = ["GET", "POST"])
+def add_activity(eid):
+    with dbi.connect() as conn:
+        if request.method == "GET":
+            if db.get_establishment(conn, eid):
+                return render_template("add-activity.html", eid=eid)
+            else:
+                flash(f'Establishment not found.')
+                return redirect(url_for("index"))
+        else:
+            info = request.form
+            db.add_activity(conn, eid, info)
+            flash(f'Activity with {eid} added successfully')
+            return redirect(url_for("index"))
 
 if __name__ == '__main__':
     import sys, os
