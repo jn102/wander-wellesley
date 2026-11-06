@@ -48,3 +48,19 @@ def last_insert_id(conn):
         query = '''SELECT last_insert_id()'''
         curs.execute(query)
         return curs.fetchone()
+
+def add_account(conn, email, name):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''INSERT INTO user(email, name)
+                                    VALUES(%s, %s)''',
+                                    [email, name])
+        conn.commit()
+
+def get_email(conn, email):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''
+                        select email from user
+                        where email = %s''',
+                        [email])
+    return curs.fetchall()
+    

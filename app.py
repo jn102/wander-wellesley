@@ -103,20 +103,12 @@ def create_account():
             flash("Must use a Wellesley Email")
             return render_template('createAccount.html', page_title='Create Account')
         else:
-            with dbi.connect() as conn:
-                with dbi.dict_cursor(conn) as curs:
-                    curs.execute('''
-                            select email from user
-                            where email = %s''',
-                            [email])
-                    if curs.fetchall():
-                        flash("There is already an account using " + email)
-                        return render_template('createAccount.html', page_title='Create Account')
-                    curs.execute('''INSERT INTO user(email, name)
-                                    VALUES(%s, %s)''',
-                                    [email, name])
-                    conn.commit()
-                    flash("Account created for " + email)
+            with dbi.connect() as conn:   
+                if db.get_email(conn, email):
+                    flash("There is already an account using " + email)
+                    return render_template('createAccount.html', page_title='Create Account')
+                db.add_account(conn, email, name)
+                flash("Account created for " + email)
 
         return redirect(url_for('index'))
 
