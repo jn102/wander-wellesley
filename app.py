@@ -112,6 +112,13 @@ def create_account():
 
         return redirect(url_for('index'))
 
+@app.route('/review/<eid>', methods = ['GET', 'POST'])
+def add_review(eid):
+    if request.method == 'GET':
+        return render_template('review.html', eid = eid)
+    if request.method == 'POST':
+        return eid
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:

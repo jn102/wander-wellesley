@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block main_content %}
+<form method="POST" action="{{url_for('add_review', eid=eid)}}">
+
+      <tr><td class = formtablerow>Rating</td>
+        <td class = formtablerow>
+            <fieldset>
+                <legend>Stars</legend>
+            <label>
+                <input required type="radio" name="rating" class = radiobutton value=1>
+                1
+            </label>
+            <label>
+                <input required type="radio" name="rating" class = radiobutton value=2>
+                2
+            </label>
+            <label>
+                <input required type="radio" name="rating" class = radiobutton value=3>
+                3
+            </label>
+            <label>
+                <input required type="radio" name="rating" class = radiobutton value=4>
+                4
+            </label>
+            <label>
+                <input required type="radio" name="rating" class = radiobutton value=5>
+                5
+            </label>
+        </fieldset>
+            
+    </td ></tr>
+
+    <tr><td class = formtablerow>Price</td>
+        <td class = formtablerow>
+            <fieldset>
+                <legend>Price Levels</legend>
+            <label>
+                <input required type="radio" name="price" class = radiobutton value=1>
+                $
+            </label>
+            <label>
+                <input required type="radio" name="price" class = radiobutton value=2>
+                $$
+            </label>
+            <label>
+                <input required type="radio" name="price" class = radiobutton value=3>
+                $$$
+            </label>
+        </fieldset>
+            
+    </td ></tr>
+
+    <tr><td class = formtablerow><label for="Date Visited">Date Visited</label></td>
+        <td class = formtablerow><input type = "date" id = "date visited" name = "date_visited" required></td></tr>
+</table>
+
+
+<p><label for="extra">Comments:</label><p></p>
+<p><textarea id="extra" name="comments" rows=5 cols=30></textarea></p>
+
+<p><button id = "submitbutton"
+    type="submit">Submit form</button></p>
+
+</form>
+</form>
+{% endblock %}
