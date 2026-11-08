@@ -79,4 +79,13 @@ def add_review(conn, eid, user, stars, price, body, date_visited):
                         VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, %s)'''
         curs.execute(query, [eid, user, stars, price, body, date_visited])
         conn.commit()
+
+def get_establishment_rating_price(conn, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''
+                        select AVG(stars) as r_avg, AVG(price) as p_avg 
+                        from review
+                        where eid = %s''',
+                        [eid])
+    return curs.fetchone()
     

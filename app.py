@@ -131,8 +131,11 @@ def info(eid):
     with dbi.connect() as conn:
         if db.get_establishment(conn, eid):
             info = db.get_establishment_info(conn, eid)
-            print(info)
-            return render_template('establishment.html', establishment = info)
+            ratings = db.get_establishment_rating_price(conn, eid)
+            print(ratings)
+            return render_template('establishment.html', 
+            establishment = info,
+            ratings = ratings)
         else:
             flash("No establishment with that ID")
             return redirect(url_for('index'))

@@ -9,5 +9,9 @@
 <h2>Description:</h2>
 <p>{{establishment.description}}</p>
 
+<p>Average rating: {{ratings.r_avg}}</p>
+
+<p>Reported price level: {{ratings.p_avg}}</p>
+
 <a href="{{url_for('add_review', eid = establishment.eid)}}">Add Review</a>
 {% endblock %}
