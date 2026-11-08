@@ -63,4 +63,12 @@ def get_email(conn, email):
                         where email = %s''',
                         [email])
     return curs.fetchall()
+
+def get_establishment_info(conn, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''
+                        select * from establishment
+                        where eid = %s''',
+                        [eid])
+    return curs.fetchone()
     

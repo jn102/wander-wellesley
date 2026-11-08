@@ -117,7 +117,18 @@ def add_review(eid):
     if request.method == 'GET':
         return render_template('review.html', eid = eid)
     if request.method == 'POST':
-        return eid
+        return redirect(url_for('info', eid=eid))
+
+@app.route('/<eid>')
+def info(eid):
+    with dbi.connect() as conn:
+        if db.get_establishment(conn, eid):
+            info = db.get_establishment_info(conn, eid)
+            print(info)
+            return render_template('establishment.html', establishment = info)
+        else:
+            flash("No establishment with that ID")
+            return redirect(url_for('index'))
 
 if __name__ == '__main__':
     import sys, os
