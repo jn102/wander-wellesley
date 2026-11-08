@@ -71,4 +71,12 @@ def get_establishment_info(conn, eid):
                         where eid = %s''',
                         [eid])
     return curs.fetchone()
+
+def add_review(conn, eid, user, stars, price, body, date_visited):
+    with dbi.dict_cursor(conn) as curs:
+        query = '''INSERT INTO review (eid, user, stars, price,
+                    review_body, date_added, date_visited)
+                        VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, %s)'''
+        curs.execute(query, [eid, user, stars, price, body, date_visited])
+        conn.commit()
     

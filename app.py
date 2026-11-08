@@ -114,10 +114,17 @@ def create_account():
 
 @app.route('/review/<eid>', methods = ['GET', 'POST'])
 def add_review(eid):
-    if request.method == 'GET':
-        return render_template('review.html', eid = eid)
-    if request.method == 'POST':
-        return redirect(url_for('info', eid=eid))
+    with dbi.connect() as conn:
+        if request.method == 'GET':
+            return render_template('review.html', eid = eid)
+        if request.method == 'POST':
+            user = 5 #Temporary: change to actual user once logins are implemented
+            stars = request.form.get('rating')
+            price = request.form.get('price')
+            body = request.form.get('comments')
+            date_visited = request.form.get('date_visited')
+            db.add_review(conn, eid, user, stars, price, body, date_visited)
+            return redirect(url_for('info', eid=eid))
 
 @app.route('/<eid>')
 def info(eid):
