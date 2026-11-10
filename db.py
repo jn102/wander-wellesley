@@ -64,6 +64,13 @@ def get_email(conn, email):
                         [email])
     return curs.fetchall()
 
+def add_itinerary(conn, info):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''INSERT INTO itinerary(city, country, season, name, user)
+                       VALUES(%s, %s, %s, %s, %s)''',
+                     [info['city'], info['country'], info['season'], info['name'],
+                       info['user']])
+        
 def get_establishment_info(conn, eid):
     with dbi.dict_cursor(conn) as curs:
         curs.execute('''
