@@ -114,22 +114,42 @@ def create_account():
             flash("Must use a Wellesley Email")
             return render_template('createAccount.html', page_title='Create Account')
         else:
-            with dbi.connect() as conn:
-                with dbi.dict_cursor(conn) as curs:
-                    curs.execute('''
-                            select email from user
-                            where email = %s''',
-                            [email])
-                    if curs.fetchall():
-                        flash("There is already an account using " + email)
-                        return render_template('createAccount.html', page_title='Create Account')
-                    curs.execute('''INSERT INTO user(email, name)
-                                    VALUES(%s, %s)''',
-                                    [email, name])
-                    conn.commit()
-                    flash("Account created for " + email)
+            with dbi.connect() as conn:   
+                if db.get_email(conn, email):
+                    flash("There is already an account using " + email)
+                    return render_template('createAccount.html', page_title='Create Account')
+                db.add_account(conn, email, name)
+                flash("Account created for " + email)
 
         return redirect(url_for('index'))
+
+@app.route('/review/<eid>', methods = ['GET', 'POST'])
+def add_review(eid):
+    with dbi.connect() as conn:
+        if request.method == 'GET':
+            return render_template('review.html', eid = eid)
+        if request.method == 'POST':
+            user = 5 #Temporary: change to actual user once logins are implemented
+            stars = request.form.get('rating')
+            price = request.form.get('price')
+            body = request.form.get('comments')
+            date_visited = request.form.get('date_visited')
+            db.add_review(conn, eid, user, stars, price, body, date_visited)
+            return redirect(url_for('info', eid=eid))
+
+@app.route('/<eid>')
+def info(eid):
+    with dbi.connect() as conn:
+        if db.get_establishment(conn, eid):
+            info = db.get_establishment_info(conn, eid)
+            ratings = db.get_establishment_rating_price(conn, eid)
+            print(ratings)
+            return render_template('establishment.html', 
+            establishment = info,
+            ratings = ratings)
+        else:
+            flash("No establishment with that ID")
+            return redirect(url_for('index'))
 
 if __name__ == '__main__':
     import sys, os

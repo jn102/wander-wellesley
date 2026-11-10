@@ -71,3 +71,28 @@ def add_itinerary(conn, info):
                      [info['city'], info['country'], info['season'], info['name'],
                        info['user']])
         
+def get_establishment_info(conn, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''
+                        select * from establishment
+                        where eid = %s''',
+                        [eid])
+    return curs.fetchone()
+
+def add_review(conn, eid, user, stars, price, body, date_visited):
+    with dbi.dict_cursor(conn) as curs:
+        query = '''INSERT INTO review (eid, user, stars, price,
+                    review_body, date_added, date_visited)
+                        VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, %s)'''
+        curs.execute(query, [eid, user, stars, price, body, date_visited])
+        conn.commit()
+
+def get_establishment_rating_price(conn, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''
+                        select AVG(stars) as r_avg, AVG(price) as p_avg 
+                        from review
+                        where eid = %s''',
+                        [eid])
+    return curs.fetchone()
+    
