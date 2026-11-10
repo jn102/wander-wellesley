@@ -91,6 +91,17 @@ def add_activity(eid):
             flash(f'Activity with {eid} added successfully')
             return redirect(url_for("index"))
 
+@app.route('/add-itinerary/', methods=["GET", "POST"])
+def add_itinerary():
+    if request.method == 'GET':
+        return render_template('add-itinerary.html')
+    elif request.method == 'POST':
+        info = request.form
+        with dbi.connect() as conn:
+            db.add_itinerary(conn, info)
+        flash(f'Itinerary {info['name']} added successfully')
+        return redirect(url_for("index"))
+
 @app.route('/createaccount/', methods = ['GET', 'POST'])
 def create_account():
     if request.method == 'GET':
