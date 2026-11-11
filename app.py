@@ -161,6 +161,8 @@ def view_establishment(eid):
         if db.get_establishment(conn, eid):
             info = db.get_establishment_info(conn, eid)
             ratings = db.get_establishment_rating_price(conn, eid)
+            ratings["r_avg"] = round(ratings["r_avg"], 2)
+            ratings["p_avg"] = int(ratings["p_avg"])
             return render_template('establishment.html', 
                 establishment = info,
                 ratings = ratings, page_title = info['name'])
@@ -199,6 +201,18 @@ def search():
             return render_template('search-results.html', city=city, 
                                    country=country, establishments=establishments, 
                                    page_title = f"Establishments in {city}, {country}")
+
+@app.route('/search-by-type/', methods=['POST'])
+def search_by_type():
+    with dbi.connect() as conn:
+        type = request.form['type']
+        if type == "None":
+            flash("Must choose a type")
+            return render_template('search-establishments.html', page_title = "Search Establishments by City/Country")
+        establishments = db.get_establishments_by_type(conn, type)
+        return render_template('search_by_type_results.html', type=type, 
+                             establishments=establishments, 
+                                page_title = type)
 
 if __name__ == '__main__':
     import sys, os

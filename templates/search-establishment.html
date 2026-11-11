@@ -9,4 +9,15 @@
     <input type="text" name="country"></p>
     <p><input type="submit" name="submit-btn" value="Submit"></p>
 </form>
+
+<h1>Search Establishments by Type</h1>
+<form method="POST" action="{{url_for('search_by_type')}}">
+    <select name="type" required>
+        <option value="None">Choose One</option>
+        <option value="Hotel">Hotel</option>
+        <option value="Restaurant">Restaurant</option>
+        <option value="Activity">Activity</option>
+        </select></p>
+    <p><input type="submit" name="submit-btn" value="Submit"></p>
+</form>
 {% endblock %}

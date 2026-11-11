@@ -9,9 +9,13 @@
 <h2>Description:</h2>
 <p>{{establishment.description}}</p>
 
+{% if establishment.website %}
+<p><a href="{{establishment.website}}" target = "_blank">Website</a></p>
+{% endif %}
+
 <p>Average rating: {{ratings.r_avg}}</p>
 
-<p>Reported price level: {{ratings.p_avg}}</p>
+<p>Reported price level: {{ '$' * ratings.p_avg}}</p>
 
 <p><a href="{{url_for('add_review', eid = establishment.eid)}}">Add Review</a></p>
 
