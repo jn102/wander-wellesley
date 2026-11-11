@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block main_content %}
+<h1>Add more details about your restaurant:</h1>
 <form method="POST" action="{{url_for('add_restaurant', eid=eid)}}">
     <p><label for="cuisine">Cuisine:</label>
     <input type="text" name="cuisine"></p>

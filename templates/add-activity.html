@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block main_content %}
+<h1>Add more details about your activity:</h1>
 <form method="POST" action="{{url_for('add_activity', eid=eid)}}">
     <p><label for="outdoors">Is it outdoors?</label>
     <select name="outdoors">

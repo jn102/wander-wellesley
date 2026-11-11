@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block main_content %}
+<h1>Add more details about your hotel:</h1>
 <form method="POST" action="{{url_for('add_hotel', eid=eid)}}">
     <p><label for="gym">Do they have a gym?</label>
     <select name="gym">
