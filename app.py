@@ -23,17 +23,20 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
-    return render_template('main.html', page_title='Main Page')
+    '''Renders the homepage for the site'''
+    return render_template('main.html', page_title='Home Page')
 
 @app.route('/add-establishment/', methods = ["GET", "POST"])
 def add_establishment():
+    '''Adds an establishment to the table based on user input.
+        Will redirect to appropriate type of form to add further information about
+        the specific kind of establishment.'''
     if request.method == "GET":
-        return render_template('add-establishments.html', page_title = "Add Establishment")
+        return render_template('add-establishment.html', page_title = "Add Establishment")
     elif request.method == "POST":
         with dbi.connect() as conn:
             info = request.form
-            db.add_establishment(conn, info)
-            last_insert_id = db.last_insert_id(conn)['last_insert_id()']
+            last_insert_id = db.add_establishment(conn, info) # new eid
         if info["type"] == "Hotel":
             return redirect(url_for("add_hotel", eid=last_insert_id))
         elif info["type"] == "Restaurant":
@@ -43,6 +46,8 @@ def add_establishment():
 
 @app.route('/add-restaurant/<eid>', methods = ["GET", "POST"])
 def add_restaurant(eid):
+    '''Adds a restaurant to the restaurant table based on input.
+        Must be an existing establishment in the establishment table.'''
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment(conn, eid):
@@ -50,14 +55,16 @@ def add_restaurant(eid):
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
-        else:
+        else: # method is POST
             info = request.form
             db.add_restaurant(conn, eid, info)
-            flash(f'Restaurant with {eid} added successfully')
-            return redirect(url_for("index"))
+            flash(f'Restaurant with ID {eid} added successfully')
+            return redirect(url_for("view_establishment", eid=eid))
 
 @app.route('/add-hotel/<eid>', methods = ["GET", "POST"])
 def add_hotel(eid):
+    '''Adds a hotel to the hotel table based on input.
+        Must be an existing establishment in the establishment table.'''
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment(conn, eid):
@@ -65,14 +72,16 @@ def add_hotel(eid):
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
-        else:
+        else: # method is POST
             info = request.form
             db.add_hotel(conn, eid, info)
-            flash(f'Hotel with {eid} added successfully')
-            return redirect(url_for("index"))
+            flash(f'Hotel with ID = {eid} added successfully')
+            return redirect(url_for("view_establishment", eid=eid))
 
 @app.route('/add-activity/<eid>', methods = ["GET", "POST"])
 def add_activity(eid):
+    '''Adds an activity to the activity table based on input.
+        Must be an existing establishment in the establishment table.'''
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment(conn, eid):
@@ -80,14 +89,17 @@ def add_activity(eid):
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
-        else:
+        else: # method is POST
             info = request.form
             db.add_activity(conn, eid, info)
-            flash(f'Activity with {eid} added successfully')
-            return redirect(url_for("index"))
+            flash(f'Activity with ID = {eid} added successfully')
+            return redirect(url_for("view_establishment", eid=eid))
 
 @app.route('/add-itinerary/', methods=["GET", "POST"])
 def add_itinerary():
+    '''Adds an itinerary to the table. The itinerary will be empty, but it will
+        have a name, season, place, etc. The user can then go to establishment pages
+        to add places to their itinerary.'''
     if request.method == 'GET':
         return render_template('add-itinerary.html', page_title = "Add Itinerary")
     elif request.method == 'POST':
@@ -97,14 +109,17 @@ def add_itinerary():
         flash(f'Itinerary {info['name']} added successfully')
         return redirect(url_for("itinerary", iid=iid))
 
-@app.route('/itinerary/<iid>', methods=["GET"])
+@app.route('/itinerary/<iid>')
 def itinerary(iid):
+    '''View an existing itinerary based on its iid.'''
     with dbi.connect() as conn:
         info, places = db.get_itinerary_info(conn, iid)
         return render_template('view-itinerary.html', itinerary=info, places=places, page_title = info['name'])
 
 @app.route('/createaccount/', methods = ['GET', 'POST'])
 def create_account():
+    '''Create an account with name, email, and password if email is new and a Wellesley email.
+        On success, returns home.'''
     if request.method == 'GET':
         return render_template('createAccount.html', page_title='Create Account')
     if request.method == 'POST':
@@ -116,31 +131,32 @@ def create_account():
             return render_template('createAccount.html', page_title='Create Account')
         else:
             with dbi.connect() as conn:   
-                if db.get_email(conn, email):
-                    flash("There is already an account using " + email)
+                if not db.validate_email(conn, email):
+                    flash("There is already an account for " + email)
                     return render_template('createAccount.html', page_title='Create Account')
-                uid = db.add_account(conn, email, name)
-                print(uid)
-                flash("Account created for " + email + " UID = "+ str(uid['LAST_INSERT_ID()']) )
-
-        return redirect(url_for('index'))
+                uid = db.add_account(conn, email, name, password)
+                flash(f"Account created for {email} with UID = {uid}")
+                return redirect(url_for('index'))
 
 @app.route('/review/<eid>', methods = ['GET', 'POST'])
 def add_review(eid):
+    '''Adds a review to the review table for establishment with eid based on user input.'''
     with dbi.connect() as conn:
         if request.method == 'GET':
             return render_template('review.html', eid = eid, page_title = "Add Review")
         if request.method == 'POST':
-            user = 5 #Temporary: change to actual user once logins are implemented
+            user = 1 # Temporary: change to actual user once logins are implemented
             stars = request.form.get('rating')
             price = request.form.get('price')
             body = request.form.get('comments')
             date_visited = request.form.get('date_visited')
             db.add_review(conn, eid, user, stars, price, body, date_visited)
-            return redirect(url_for('info', eid=eid))
+            return redirect(url_for('view_establishment', eid=eid))
 
 @app.route('/establishment/<eid>')
 def view_establishment(eid):
+    '''Renders webpage with information about an establishment based on eid.
+        Redirects to home if no such establishment exists.'''
     with dbi.connect() as conn:
         if db.get_establishment(conn, eid):
             info = db.get_establishment_info(conn, eid)
@@ -148,14 +164,16 @@ def view_establishment(eid):
             ratings["r_avg"] = round(ratings["r_avg"], 2)
             ratings["p_avg"] = int(ratings["p_avg"])
             return render_template('establishment.html', 
-            establishment = info,
-            ratings = ratings, page_title = info['name'])
+                establishment = info,
+                ratings = ratings, page_title = info['name'])
         else:
             flash("No establishment with that ID")
             return redirect(url_for('index'))
 
 @app.route('/add-to-itinerary/<eid>', methods = ['GET', 'POST'])
 def add_to_itinerary(eid):
+    '''Adds an establishment to an itinerary based on user choice. Must
+        be an existing establishment. Redirects to itinerary view page on success.'''
     with dbi.connect() as conn:
         if not db.get_establishment(conn, eid):
             flash(f'No establishment with eid {eid}')
@@ -172,9 +190,10 @@ def add_to_itinerary(eid):
 
 @app.route('/search/', methods=["GET", 'POST'])
 def search():
+    '''Search for establishment based on city and country.'''
     with dbi.connect() as conn:
         if request.method == 'GET':
-            return render_template('search-establishments.html', page_title = "Search Establishments by City/Country")
+            return render_template('search-establishment.html', page_title = "Search Establishments by City/Country")
         if request.method == 'POST':
             city = request.form['city']
             country = request.form['country']
