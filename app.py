@@ -107,8 +107,9 @@ def create_account():
                 if db.get_email(conn, email):
                     flash("There is already an account using " + email)
                     return render_template('createAccount.html', page_title='Create Account')
-                db.add_account(conn, email, name)
-                flash("Account created for " + email)
+                uid = db.add_account(conn, email, name)
+                print(uid)
+                flash("Account created for " + email + " UID = "+ str(uid['LAST_INSERT_ID()']) )
 
         return redirect(url_for('index'))
 

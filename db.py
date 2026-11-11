@@ -54,7 +54,10 @@ def add_account(conn, email, name):
         curs.execute('''INSERT INTO user(email, name)
                                     VALUES(%s, %s)''',
                                     [email, name])
+        curs.execute('''SELECT LAST_INSERT_ID()''')
         conn.commit()
+        return curs.fetchone()
+
 
 def get_email(conn, email):
     with dbi.dict_cursor(conn) as curs:
@@ -62,6 +65,7 @@ def get_email(conn, email):
                         select email from user
                         where email = %s''',
                         [email])
+
     return curs.fetchall()
 
 def get_establishment_info(conn, eid):
