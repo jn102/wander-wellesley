@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Establishments in {{city}}, {{country}}</h1>
+{%if establishments%}
+<ol>
+{%for place in establishments%}
+<li>{{place.name}} is a {{place.type}} 
+    in {{place.city}}, {{place.country}}</li>
+{% endfor %}
+</ol>
+{% else %}
+<p>No establishments found.</p>
+{% endif %}
+{% endblock %}
