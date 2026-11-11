@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>{{itinerary.name}}</h1>
+<p>This is an itinerary for {{itinerary.season}} in {{itinerary.city}}, {{itinerary.country}}.</p>
+{%if places%}
+<p>Places in Itinerary:</p>
+<ol>
+{%for place in places%}
+<li>{{place.name}} is a {{place.type}} 
+    in {{place.city}}, {{place.country}}</li>
+{% endfor %}
+</ol>
+{% endif %}
+{% endblock %}
