@@ -5,7 +5,7 @@
 {%if establishments%}
 <ol>
 {%for place in establishments%}
-<li>{{place.name}} is a {{place.type}} 
+<li><a href = "{{url_for('view_establishment', eid = place.eid)}}">{{place.name}}</a> is a {{place.type}} 
     in {{place.city}}, {{place.country}}</li>
 {% endfor %}
 </ol>
