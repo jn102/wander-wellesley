@@ -181,6 +181,18 @@ def search():
                                    country=country, establishments=establishments, 
                                    page_title = f"Establishments in {city}, {country}")
 
+@app.route('/search-by-type/', methods=['POST'])
+def search_by_type():
+    with dbi.connect() as conn:
+        type = request.form['type']
+        if type == "None":
+            flash("Must choose a type")
+            return render_template('search-establishments.html', page_title = "Search Establishments by City/Country")
+        establishments = db.get_establishments_by_type(conn, type)
+        return render_template('search_by_type_results.html', type=type, 
+                             establishments=establishments, 
+                                page_title = type)
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:

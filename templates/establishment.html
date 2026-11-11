@@ -9,6 +9,10 @@
 <h2>Description:</h2>
 <p>{{establishment.description}}</p>
 
+{% if establishment.website %}
+<p><a href="{{establishment.website}}" target = "_blank">Website</a></p>
+{% endif %}
+
 <p>Average rating: {{ratings.r_avg}}</p>
 
 <p>Reported price level: {{ratings.p_avg}}</p>
