@@ -145,6 +145,8 @@ def view_establishment(eid):
         if db.get_establishment(conn, eid):
             info = db.get_establishment_info(conn, eid)
             ratings = db.get_establishment_rating_price(conn, eid)
+            ratings["r_avg"] = round(ratings["r_avg"], 2)
+            ratings["p_avg"] = int(ratings["p_avg"])
             return render_template('establishment.html', 
             establishment = info,
             ratings = ratings, page_title = info['name'])
