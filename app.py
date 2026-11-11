@@ -25,15 +25,10 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 def index():
     return render_template('main.html', page_title='Main Page')
 
-@app.route('/about/')
-def about():
-    flash('this is a flashed message')
-    return render_template('about.html', page_title='About Us')
-
 @app.route('/add-establishment/', methods = ["GET", "POST"])
 def add_establishment():
     if request.method == "GET":
-        return render_template('add-establishments.html')
+        return render_template('add-establishments.html', page_title = "Add Establishment")
     elif request.method == "POST":
         with dbi.connect() as conn:
             info = request.form
@@ -51,7 +46,7 @@ def add_restaurant(eid):
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment(conn, eid):
-                return render_template("add-restaurant.html", eid=eid)
+                return render_template("add-restaurant.html", eid=eid, page_title = "Add Restaurant")
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
@@ -66,7 +61,7 @@ def add_hotel(eid):
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment(conn, eid):
-                return render_template("add-hotel.html", eid=eid)
+                return render_template("add-hotel.html", eid=eid, page_title = "Add Hotel")
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
@@ -81,7 +76,7 @@ def add_activity(eid):
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment(conn, eid):
-                return render_template("add-activity.html", eid=eid)
+                return render_template("add-activity.html", eid=eid, page_title = "Add Activity")
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
@@ -94,7 +89,7 @@ def add_activity(eid):
 @app.route('/add-itinerary/', methods=["GET", "POST"])
 def add_itinerary():
     if request.method == 'GET':
-        return render_template('add-itinerary.html')
+        return render_template('add-itinerary.html', page_title = "Add Itinerary")
     elif request.method == 'POST':
         info = request.form
         with dbi.connect() as conn:
@@ -106,7 +101,7 @@ def add_itinerary():
 def itinerary(iid):
     with dbi.connect() as conn:
         info, places = db.get_itinerary_info(conn, iid)
-        return render_template('view-itinerary.html', itinerary=info, places=places)
+        return render_template('view-itinerary.html', itinerary=info, places=places, page_title = info['name'])
 
 @app.route('/createaccount/', methods = ['GET', 'POST'])
 def create_account():
@@ -133,7 +128,7 @@ def create_account():
 def add_review(eid):
     with dbi.connect() as conn:
         if request.method == 'GET':
-            return render_template('review.html', eid = eid)
+            return render_template('review.html', eid = eid, page_title = "Add Review")
         if request.method == 'POST':
             user = 5 #Temporary: change to actual user once logins are implemented
             stars = request.form.get('rating')
@@ -151,7 +146,7 @@ def view_establishment(eid):
             ratings = db.get_establishment_rating_price(conn, eid)
             return render_template('establishment.html', 
             establishment = info,
-            ratings = ratings)
+            ratings = ratings, page_title = info['name'])
         else:
             flash("No establishment with that ID")
             return redirect(url_for('index'))
@@ -164,7 +159,8 @@ def add_to_itinerary(eid):
             return redirect(url_for('index'))
         if request.method == 'GET':
             itineraries = db.get_itineraries(conn)
-            return render_template('add-to-itinerary.html', itineraries = itineraries, eid=eid)
+            return render_template('add-to-itinerary.html', itineraries = itineraries, 
+                                   eid=eid, page_title = "Add Establishment to Itinerary")
         elif request.method == 'POST':
             iid = request.form['itinerary']
             db.add_to_itinerary(conn, iid, eid)
@@ -175,13 +171,15 @@ def add_to_itinerary(eid):
 def search():
     with dbi.connect() as conn:
         if request.method == 'GET':
-            return render_template('search-establishments.html')
+            return render_template('search-establishments.html', page_title = "Search Establishments by City/Country")
         if request.method == 'POST':
             city = request.form['city']
             country = request.form['country']
             establishments = db.get_establishments(conn, city, country)
             return render_template('search-results.html', city=city, 
-                                   country=country, establishments=establishments)
+                                   country=country, establishments=establishments, 
+                                   page_title = f"Establishments in {city}, {country}")
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:

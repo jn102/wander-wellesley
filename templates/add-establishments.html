@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block main_content %}
+<h1>Add an Establishment</h1>
+<p>You can add your establishment to an itinerary or leave a review by visiting its establishment page.</p>
 <form method="POST" action="{{url_for('add_establishment')}}">
     <p><label for="name">Name:</label>
     <input type="text" name="name"></p>
