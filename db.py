@@ -70,6 +70,8 @@ def add_itinerary(conn, info):
                        VALUES(%s, %s, %s, %s, %s)''',
                      [info['city'], info['country'], info['season'], info['name'],
                        info['user']])
+        conn.commit()
+        return curs.lastrowid
         
 def get_establishment_info(conn, eid):
     with dbi.dict_cursor(conn) as curs:
@@ -96,3 +98,29 @@ def get_establishment_rating_price(conn, eid):
                         [eid])
     return curs.fetchone()
     
+def get_itinerary_info(conn, iid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''select * from itinerary
+                        where iid = %s''',
+                        [iid])
+        info = curs.fetchone()
+        curs.execute('''SELECT establishment.name as name, type, 
+                        establishment.city as city, establishment.country as country 
+                        FROM establishment
+                        INNER JOIN visit USING (eid)
+                        INNER JOIN itinerary USING (iid)
+                        WHERE iid = %s''',
+                        [iid])
+        places = curs.fetchall()
+        return info, places
+
+def get_itineraries(conn):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT iid, name FROM itinerary''')
+        return curs.fetchall()
+
+def add_to_itinerary(conn, iid, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''INSERT INTO visit(iid, eid) VALUES (%s, %s)''',
+                     [iid, eid])
+        conn.commit()

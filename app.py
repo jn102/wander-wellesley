@@ -98,9 +98,15 @@ def add_itinerary():
     elif request.method == 'POST':
         info = request.form
         with dbi.connect() as conn:
-            db.add_itinerary(conn, info)
+            iid = db.add_itinerary(conn, info)
         flash(f'Itinerary {info['name']} added successfully')
-        return redirect(url_for("index"))
+        return redirect(url_for("itinerary", iid=iid))
+
+@app.route('/itinerary/<iid>', methods=["GET"])
+def itinerary(iid):
+    with dbi.connect() as conn:
+        info, places = db.get_itinerary_info(conn, iid)
+        return render_template('view-itinerary.html', itinerary=info, places=places)
 
 @app.route('/createaccount/', methods = ['GET', 'POST'])
 def create_account():
@@ -137,19 +143,33 @@ def add_review(eid):
             db.add_review(conn, eid, user, stars, price, body, date_visited)
             return redirect(url_for('info', eid=eid))
 
-@app.route('/<eid>')
-def info(eid):
+@app.route('/establishment/<eid>')
+def view_establishment(eid):
     with dbi.connect() as conn:
         if db.get_establishment(conn, eid):
             info = db.get_establishment_info(conn, eid)
             ratings = db.get_establishment_rating_price(conn, eid)
-            print(ratings)
             return render_template('establishment.html', 
             establishment = info,
             ratings = ratings)
         else:
             flash("No establishment with that ID")
             return redirect(url_for('index'))
+
+@app.route('/add-to-itinerary/<eid>', methods = ['GET', 'POST'])
+def add_to_itinerary(eid):
+    with dbi.connect() as conn:
+        if not db.get_establishment(conn, eid):
+            flash(f'No establishment with eid {eid}')
+            return redirect(url_for('index'))
+        if request.method == 'GET':
+            itineraries = db.get_itineraries(conn)
+            return render_template('add-to-itinerary.html', itineraries = itineraries, eid=eid)
+        elif request.method == 'POST':
+            iid = request.form['itinerary']
+            db.add_to_itinerary(conn, iid, eid)
+            flash('Establishment added successfully')
+            return redirect(url_for('itinerary', iid=iid))
 
 if __name__ == '__main__':
     import sys, os
