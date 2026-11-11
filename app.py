@@ -131,7 +131,7 @@ def create_account():
             return render_template('createAccount.html', page_title='Create Account')
         else:
             with dbi.connect() as conn:   
-                if db.get_email(conn, email):
+                if not db.validate_email(conn, email):
                     flash("There is already an account for " + email)
                     return render_template('createAccount.html', page_title='Create Account')
                 uid = db.add_account(conn, email, name, password)
