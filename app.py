@@ -25,11 +25,6 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 def index():
     return render_template('main.html', page_title='Main Page')
 
-@app.route('/about/')
-def about():
-    flash('this is a flashed message')
-    return render_template('about.html', page_title='About Us')
-
 @app.route('/add-establishment/', methods = ["GET", "POST"])
 def add_establishment():
     if request.method == "GET":
