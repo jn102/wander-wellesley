@@ -171,6 +171,17 @@ def add_to_itinerary(eid):
             flash('Establishment added successfully')
             return redirect(url_for('itinerary', iid=iid))
 
+@app.route('/search/', methods=["GET", 'POST'])
+def search():
+    with dbi.connect() as conn:
+        if request.method == 'GET':
+            return render_template('search-establishments.html')
+        if request.method == 'POST':
+            city = request.form['city']
+            country = request.form['country']
+            establishments = db.get_establishments(conn, city, country)
+            return render_template('search-results.html', city=city, 
+                                   country=country, establishments=establishments)
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:

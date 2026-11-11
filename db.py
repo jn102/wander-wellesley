@@ -10,6 +10,12 @@ def get_establishment(conn, eid):
         else:
             return False
 
+def get_establishments(conn, city, country):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT * FROM establishment
+                        WHERE city = %s AND country = %s;''', [city, country])
+        return curs.fetchall()
+
 def add_establishment(conn, info):
     with dbi.dict_cursor(conn) as curs:
         query = '''INSERT INTO establishment (name, type, website, country, city, description)
