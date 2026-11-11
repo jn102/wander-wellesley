@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Search Establishments by City/Country</h1>
+<form method="POST" action="{{url_for('search')}}">
+    <p><label for="city">City:</label>
+    <input type="text" name="city"></p>
+    <p><label for="country">Country:</label>
+    <input type="text" name="country"></p>
+    <p><input type="submit" name="submit-btn" value="Submit"></p>
+</form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block main_content %}
+<h1>Create an Itinerary</h1>
+<p>You can add establishemnts to your itinerary by 
+    visiting an establishment page and selecting "Add to Itinerary".</p>
+<form method="POST" action="{{url_for('add_itinerary')}}">
+    <p><label for="city">What city is your itinerary in?</label>
+    <input type="text" name="city"></p>
+    <p><label for="country">What country is your itinerary in?</label>
+    <input type="text" name="country"></p>
+    <p><label for="season">What season is your itinerary for?</label>
+    <select name="season">
+        <option value="None">Choose One</option>
+        <option value="Summer">Summer</option>
+        <option value="Spring">Spring</option>
+        <option value="Fall">Fall</option>
+        <option value="Winter">Winter</option>
+        </select></p>
+    <p><label for="name">What do you want to name your itinerary?</label>
+    <input type="text" name="name"></p>
+    <p><label for="user">What is your user ID?</label>
+    <input type="text" name="user"></p>
+    <p><input type="submit" name="submit-btn" value="Submit"></p>
+</form>
+{% endblock %}

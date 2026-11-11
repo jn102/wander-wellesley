@@ -10,6 +10,12 @@ def get_establishment(conn, eid):
         else:
             return False
 
+def get_establishments(conn, city, country):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT * FROM establishment
+                        WHERE city = %s AND country = %s;''', [city, country])
+        return curs.fetchall()
+
 def add_establishment(conn, info):
     with dbi.dict_cursor(conn) as curs:
         query = '''INSERT INTO establishment (name, type, website, country, city, description)
@@ -68,6 +74,15 @@ def get_email(conn, email):
 
     return curs.fetchall()
 
+def add_itinerary(conn, info):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''INSERT INTO itinerary(city, country, season, name, user)
+                       VALUES(%s, %s, %s, %s, %s)''',
+                     [info['city'], info['country'], info['season'], info['name'],
+                       info['user']])
+        conn.commit()
+        return curs.lastrowid
+        
 def get_establishment_info(conn, eid):
     with dbi.dict_cursor(conn) as curs:
         curs.execute('''
@@ -93,3 +108,29 @@ def get_establishment_rating_price(conn, eid):
                         [eid])
     return curs.fetchone()
     
+def get_itinerary_info(conn, iid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''select * from itinerary
+                        where iid = %s''',
+                        [iid])
+        info = curs.fetchone()
+        curs.execute('''SELECT establishment.name as name, type, 
+                        establishment.city as city, establishment.country as country 
+                        FROM establishment
+                        INNER JOIN visit USING (eid)
+                        INNER JOIN itinerary USING (iid)
+                        WHERE iid = %s''',
+                        [iid])
+        places = curs.fetchall()
+        return info, places
+
+def get_itineraries(conn):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT iid, name FROM itinerary''')
+        return curs.fetchall()
+
+def add_to_itinerary(conn, iid, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''INSERT INTO visit(iid, eid) VALUES (%s, %s)''',
+                     [iid, eid])
+        conn.commit()
