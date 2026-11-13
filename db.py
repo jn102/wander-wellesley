@@ -1,5 +1,6 @@
 import cs304dbi as dbi
 
+
 def get_establishment(conn, eid):
     '''Returns true if an establishment exists by eid.'''
     with dbi.dict_cursor(conn) as curs:
@@ -148,3 +149,12 @@ def add_to_itinerary(conn, iid, eid):
         curs.execute('''INSERT INTO visit(iid, eid) VALUES (%s, %s)''',
                      [iid, eid])
         conn.commit()
+
+def check_password(conn, email, password):
+    '''Checks if a given password matches the hash value saved for the user'''
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''select uid,password_hash
+                            FROM user
+                            WHERE email = %s''',
+                            [email])
+        return curs.fetchone()

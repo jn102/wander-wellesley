@@ -1,11 +1,12 @@
 from flask import (Flask, render_template, make_response, url_for, request,
-                   redirect, flash, session, send_from_directory, jsonify)
+                   redirect, flash, session, send_from_directory)
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
 import db
+from passlib.hash import bcrypt
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -126,6 +127,7 @@ def create_account():
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
+        hashed = bcrypt.hash(password)
         if not email.endswith("@wellesley.edu"):
             flash("Must use a Wellesley Email")
             return render_template('createAccount.html', page_title='Create Account')
@@ -134,7 +136,7 @@ def create_account():
                 if not db.validate_email(conn, email):
                     flash("There is already an account for " + email)
                     return render_template('createAccount.html', page_title='Create Account')
-                uid = db.add_account(conn, email, name, password)
+                uid = db.add_account(conn, email, name, hashed)
                 flash(f"Account created for {email} with UID = {uid}")
                 return redirect(url_for('index'))
 
@@ -213,6 +215,28 @@ def search_by_type():
         return render_template('search_by_type_results.html', type=type, 
                              establishments=establishments, 
                                 page_title = type)
+
+@app.route('/login/', methods=["GET", "POST"])
+def login():
+    with dbi.connect() as conn:
+        if request.method == "GET":
+            return render_template('login.html')
+        else:
+            email = request.form.get('email')
+            password = request.form.get('password')
+            row = db.check_password(conn, email, password)
+            if row is None:
+                flash("No account with this email")
+                return redirect(url_for('create_account'))
+            if bcrypt.verify(password, row['password_hash']):
+                flash("Login Successful")
+                session['uid'] = row['uid']
+                session['logged_in'] = True
+                return redirect(url_for('index'))
+            else:
+                flash("Incorrect email or password")
+                return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     import sys, os
