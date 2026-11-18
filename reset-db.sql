@@ -86,6 +86,6 @@ ALTER TABLE `review` ADD FOREIGN KEY (`user`) REFERENCES `user` (`uid`);
 
 ALTER TABLE `visit` ADD FOREIGN KEY (`iid`) REFERENCES `itinerary` (`iid`);
 
-ALTER TABLE `visit` ADD FOREIGN KEY (`eid`) REFERENCES `establishment` (`eid`);
+ALTER TABLE `visit` ADD FOREIGN KEY (`eid`) REFERENCES `establishment` (`eid`) ON DELETE CASCADE;
 
-ALTER TABLE `review` ADD FOREIGN KEY (`eid`) REFERENCES `establishment` (`eid`);
+ALTER TABLE `review` ADD FOREIGN KEY (`eid`) REFERENCES `establishment` (`eid`) ON DELETE CASCADE;
