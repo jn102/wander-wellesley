@@ -144,10 +144,13 @@ def create_account():
 def add_review(eid):
     '''Adds a review to the review table for establishment with eid based on user input.'''
     with dbi.connect() as conn:
+        if 'uid' not in session:
+            flash('you must be logged in') 
+            return redirect(url_for('login'))
         if request.method == 'GET':
             return render_template('review.html', eid = eid, page_title = "Add Review")
         if request.method == 'POST':
-            user = 1 # Temporary: change to actual user once logins are implemented
+            user = session.get('uid')
             stars = request.form.get('rating')
             price = request.form.get('price')
             body = request.form.get('comments')
