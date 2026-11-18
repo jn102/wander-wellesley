@@ -51,7 +51,7 @@ def add_restaurant(eid):
         Must be an existing establishment in the establishment table.'''
     with dbi.connect() as conn:
         if request.method == "GET":
-            if db.get_establishment(conn, eid):
+            if db.get_establishment_info(conn, eid):
                 return render_template("add-restaurant.html", eid=eid, page_title = "Add Restaurant")
             else:
                 flash(f'Establishment not found.')
@@ -68,7 +68,7 @@ def add_hotel(eid):
         Must be an existing establishment in the establishment table.'''
     with dbi.connect() as conn:
         if request.method == "GET":
-            if db.get_establishment(conn, eid):
+            if db.get_establishment_info(conn, eid):
                 return render_template("add-hotel.html", eid=eid, page_title = "Add Hotel")
             else:
                 flash(f'Establishment not found.')
@@ -85,7 +85,7 @@ def add_activity(eid):
         Must be an existing establishment in the establishment table.'''
     with dbi.connect() as conn:
         if request.method == "GET":
-            if db.get_establishment(conn, eid):
+            if db.get_establishment_info(conn, eid):
                 return render_template("add-activity.html", eid=eid, page_title = "Add Activity")
             else:
                 flash(f'Establishment not found.')
@@ -163,11 +163,13 @@ def view_establishment(eid):
     '''Renders webpage with information about an establishment based on eid.
         Redirects to home if no such establishment exists.'''
     with dbi.connect() as conn:
-        if db.get_establishment(conn, eid):
+        if db.get_establishment_info(conn, eid):
             info = db.get_establishment_info(conn, eid)
             ratings = db.get_establishment_rating_price(conn, eid)
-            ratings["r_avg"] = round(ratings["r_avg"], 2)
-            ratings["p_avg"] = int(ratings["p_avg"])
+            if ratings["r_avg"]:
+                ratings["r_avg"] = round(ratings["r_avg"], 2)
+            if ratings["p_avg"]:
+                ratings["p_avg"] = int(ratings["p_avg"])
             return render_template('establishment.html', 
                 establishment = info,
                 ratings = ratings, page_title = info['name'])
@@ -180,7 +182,7 @@ def add_to_itinerary(eid):
     '''Adds an establishment to an itinerary based on user choice. Must
         be an existing establishment. Redirects to itinerary view page on success.'''
     with dbi.connect() as conn:
-        if not db.get_establishment(conn, eid):
+        if not db.get_establishment_info(conn, eid):
             flash(f'No establishment with eid {eid}')
             return redirect(url_for('index'))
         if request.method == 'GET':
@@ -209,11 +211,9 @@ def search():
 
 @app.route('/search-by-type/', methods=['POST'])
 def search_by_type():
+    '''Search for an establishment based on its type. Handles responses to search-establishment's second form.'''
     with dbi.connect() as conn:
         type = request.form['type']
-        if type == "None":
-            flash("Must choose a type")
-            return render_template('search-establishments.html', page_title = "Search Establishments by City/Country")
         establishments = db.get_establishments_by_type(conn, type)
         return render_template('search_by_type_results.html', type=type, 
                              establishments=establishments, 
@@ -240,6 +240,35 @@ def login():
                 flash("Incorrect email or password")
                 return redirect(url_for('index'))
 
+@app.route('/update_establishment/<eid>', methods=['GET', 'POST'])
+def update_establishment(eid):
+    '''Updates general establishment information based on user input.'''
+    with dbi.connect() as conn:
+        establishment = db.get_establishment_info(conn, eid)
+        if not establishment:
+            flash('Establishment does not exist')
+            return redirect(url_for('index'))
+        if request.method == 'GET':
+            return render_template('update-establishment.html', eid=eid, info=establishment, page_title = 'Update Establishment')
+        else:
+            info = request.form
+            for val in info: # for NULL values
+                if info[val] == 'None':
+                    info[val] = None
+            db.update_establishment(conn, eid, info)
+            flash(f'Establishment with ID={eid} updated successfully')
+            return redirect(url_for('view_establishment', eid=eid))
+
+@app.route('/delete_establishment/<eid>', methods=["POST"])
+def delete_establishment(eid):
+    with dbi.connect() as conn:
+        establishment = db.get_establishment_info(conn, eid)
+        if not establishment:
+            flash('Establishment does not exist')
+        else:
+            db.delete_establishment(conn, eid)
+            flash('Establishment deleted successfully')
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     import sys, os

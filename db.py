@@ -158,3 +158,26 @@ def check_password(conn, email, password):
                             WHERE email = %s''',
                             [email])
         return curs.fetchone()
+def delete_establishment(conn, eid):
+    '''Deletes an establishment from the hotel/restaurant/activity tables
+        and the general establishment table by eid.'''
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT type FROM establishment WHERE eid=%s''', [eid])
+        type = curs.fetchone()['type']
+        if type == 'Hotel':
+            curs.execute('''DELETE FROM hotel WHERE eid=%s''', [eid])
+        elif type == 'Restaurant':
+            curs.execute('''DELETE FROM restaurant WHERE eid=%s''', [eid])
+        else:
+            curs.execute('''DELETE FROM activity WHERE eid=%s''', [eid])
+        conn.commit()
+        curs.execute('''DELETE FROM establishment WHERE eid=%s''', [eid])
+        conn.commit()
+
+def update_establishment(conn, eid, info):
+    '''Updates an establishment's website, name, and description.'''
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''UPDATE establishment SET website = %s, name = %s, description = %s
+                        WHERE eid = %s''',
+                     [info['website'], info['name'], info['description'], eid] )
+        conn.commit()
