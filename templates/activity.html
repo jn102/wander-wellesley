@@ -1,0 +1,17 @@
+{% extends "establishment.html" %}
+{% block establishment_specific %}
+{% if activity.outdoors %}
+<p> The activity is outdoors. </p>
+{% endif %}
+{% if activity.student_discount %}
+<p> The activity offers a student discount. </p>
+{% endif %}
+{% if activity.ticket == 'Reservation required' %}
+<p> The activity requires reserved tickets ahead of time. </p>
+{% elif activity.ticket == 'Ticket required' %}
+<p>The activity requires tickets.</p>
+{% endif %}
+{% if activity.hours %}
+<p> The hours are: {{activity.hours}}. </p>
+{% endif %}
+{% endblock %}

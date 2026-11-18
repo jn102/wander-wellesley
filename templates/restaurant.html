@@ -1,0 +1,18 @@
+{% extends "establishment.html" %}
+{% block establishment_specific %}
+{% if restaurant.cuisine %}
+<p> The cuisine is {{restaurant.cuisine}}. </p>
+{% endif %}
+{% if restaurant.reservations %}
+<p> The restaurant does take reservations. </p>
+{% endif %}
+{% if restaurant.outdoor_seating %}
+<p> The restaurant has outdoor seating. </p>
+{% endif %}
+{% if restaurant.credit_card %}
+<p> The restaurant takes credit cards. </p>
+{% endif %}
+{% if restaurant.hours %}
+<p> The hours are: {{restaurant.hours}}. </p>
+{% endif %}
+{% endblock %}

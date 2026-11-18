@@ -1,0 +1,21 @@
+{% extends "establishment.html" %}
+{% block establishment_specific %}
+{% if hotel.gym %}
+<p> The hotel does offer a gym. </p>
+{% endif %}
+{% if hotel.breakfast %}
+<p> The hotel does offer free breakfast. </p>
+{% endif %}
+{% if hotel.pool %}
+<p> The hotel has a pool. </p>
+{% endif %}
+{% if hotel.laundry %}
+<p> The hotel offers laundry services. </p>
+{% endif %}
+{% if hotel.check_in_time %}
+<p> Check-in time is {{hotel.check_in_time}}. </p>
+{% endif %}
+{% if hotel.check_out_time %}
+<p> Check-out time is {{hotel.check_out_time}}. </p>
+{% endif %}
+{% endblock %}
