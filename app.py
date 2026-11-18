@@ -1,5 +1,5 @@
 from flask import (Flask, render_template, make_response, url_for, request,
-                   redirect, flash, session, send_from_directory)
+                   redirect, flash, session, send_from_directory, jsonify)
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
@@ -127,7 +127,7 @@ def create_account():
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
-        hashed = bcrypt.hash(password)
+        password = bcrypt.hash(password)
         if not email.endswith("@wellesley.edu"):
             flash("Must use a Wellesley Email")
             return render_template('createAccount.html', page_title='Create Account')
@@ -136,7 +136,7 @@ def create_account():
                 if not db.validate_email(conn, email):
                     flash("There is already an account for " + email)
                     return render_template('createAccount.html', page_title='Create Account')
-                uid = db.add_account(conn, email, name, hashed)
+                uid = db.add_account(conn, email, name, password)
                 flash(f"Account created for {email} with UID = {uid}")
                 return redirect(url_for('index'))
 
