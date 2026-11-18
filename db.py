@@ -44,10 +44,9 @@ def add_hotel(conn, eid, info):
 def add_activity(conn, eid, info):
     '''Adds an activity to the table.'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''INSERT INTO activity (eid, gym, breakfast, pool, laundry, check_in_time, check_out_time)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)''', 
-                    [eid, info["gym"], info["breakfast"], info["pool"], info["laundry"],
-                             info["checkin"], info["checkout"]])
+        curs.execute('''INSERT INTO activity (eid, hours, outdoors, student_discount, ticket)
+                    VALUES (%s, %s, %s, %s, %s)''', 
+                    [eid, info["hours"], info["outdoors"], info["student_discount"], info["ticket"]])
         conn.commit()
 
 def add_account(conn, email, name, password):
@@ -87,7 +86,25 @@ def get_establishment_info(conn, eid):
         curs.execute('''select * from establishment
                         where eid = %s''',
                         [eid])
-    return curs.fetchone()
+        return curs.fetchone()
+
+def get_hotel_info(conn, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT * FROM hotel WHERE
+                        eid = %s''', [eid])
+        return curs.fetchone()
+
+def get_restaurant_info(conn, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT * FROM restaurant WHERE
+                        eid = %s''', [eid])
+        return curs.fetchone()
+
+def get_activity_info(conn, eid):
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT * FROM activity WHERE
+                        eid = %s''', [eid])
+        return curs.fetchone()
 
 def add_review(conn, eid, user, stars, price, body, date_visited):
     '''Adds a review to the table.'''
