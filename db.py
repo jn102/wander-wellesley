@@ -1,5 +1,16 @@
 import cs304dbi as dbi
 
+
+def get_establishment(conn, eid):
+    '''Returns true if an establishment exists by eid.'''
+    with dbi.dict_cursor(conn) as curs:
+        query = '''SELECT eid FROM establishment WHERE eid=%s'''
+        curs.execute(query, [eid])
+        if curs.fetchone() is not None:
+            return True
+        else:
+            return False
+
 def get_establishments(conn, city, country):
     '''Returns all information about establishments in a particular city and country.'''
     with dbi.dict_cursor(conn) as curs:
@@ -139,6 +150,14 @@ def add_to_itinerary(conn, iid, eid):
                      [iid, eid])
         conn.commit()
 
+def check_password(conn, email, password):
+    '''Checks if a given password matches the hash value saved for the user'''
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''select uid,password_hash
+                            FROM user
+                            WHERE email = %s''',
+                            [email])
+        return curs.fetchone()
 def delete_establishment(conn, eid):
     '''Deletes an establishment from the hotel/restaurant/activity tables
         and the general establishment table by eid.'''

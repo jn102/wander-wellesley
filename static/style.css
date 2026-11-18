@@ -11,8 +11,8 @@
 */
 
 HTML {
-    --color-header: #0073e6;  /* for H1-H6 and nav buttons. */
-    --color-focus: #5ba300;   /* for focussed elements and mouseover on nav */
+    --color-header: #0142A4;  /* for H1-H6 and nav buttons. */
+    --color-focus: #0082be;   /* for focussed elements and mouseover on nav */
     --color-alert: #b51963;   /* for flashed messages and such. */
     --color-nav-fg: white;    /* foreground color of nav text. */
     --font-family: Verdana;
@@ -50,7 +50,7 @@ nav ul {
 
 nav > ul > li {
     flex: 0 0 auto;
-    width: 15em; 
+    width: 10em; 
 }
 
 nav button, nav a {

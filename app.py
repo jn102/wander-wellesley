@@ -6,6 +6,7 @@ app = Flask(__name__)
 import secrets
 import cs304dbi as dbi
 import db
+from passlib.hash import bcrypt
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -126,6 +127,7 @@ def create_account():
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
+        password = bcrypt.hash(password)
         if not email.endswith("@wellesley.edu"):
             flash("Must use a Wellesley Email")
             return render_template('createAccount.html', page_title='Create Account')
@@ -142,10 +144,13 @@ def create_account():
 def add_review(eid):
     '''Adds a review to the review table for establishment with eid based on user input.'''
     with dbi.connect() as conn:
+        if 'uid' not in session:
+            flash('you must be logged in') 
+            return redirect(url_for('login'))
         if request.method == 'GET':
             return render_template('review.html', eid = eid, page_title = "Add Review")
         if request.method == 'POST':
-            user = 1 # Temporary: change to actual user once logins are implemented
+            user = session.get('uid')
             stars = request.form.get('rating')
             price = request.form.get('price')
             body = request.form.get('comments')
@@ -213,6 +218,27 @@ def search_by_type():
         return render_template('search_by_type_results.html', type=type, 
                              establishments=establishments, 
                                 page_title = type)
+
+@app.route('/login/', methods=["GET", "POST"])
+def login():
+    with dbi.connect() as conn:
+        if request.method == "GET":
+            return render_template('login.html')
+        else:
+            email = request.form.get('email')
+            password = request.form.get('password')
+            row = db.check_password(conn, email, password)
+            if row is None:
+                flash("No account with this email")
+                return redirect(url_for('create_account'))
+            if bcrypt.verify(password, row['password_hash']):
+                flash("Login Successful")
+                session['uid'] = row['uid']
+                session['logged_in'] = True
+                return redirect(url_for('index'))
+            else:
+                flash("Incorrect email or password")
+                return redirect(url_for('index'))
 
 @app.route('/update_establishment/<eid>', methods=['GET', 'POST'])
 def update_establishment(eid):
