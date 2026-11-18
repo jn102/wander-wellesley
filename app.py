@@ -158,13 +158,27 @@ def view_establishment(eid):
     '''Renders webpage with information about an establishment based on eid.
         Redirects to home if no such establishment exists.'''
     with dbi.connect() as conn:
-        if db.get_establishment_info(conn, eid):
-            info = db.get_establishment_info(conn, eid)
+        info = db.get_establishment_info(conn, eid)
+        if info:
             ratings = db.get_establishment_rating_price(conn, eid)
             if ratings["r_avg"]:
                 ratings["r_avg"] = round(ratings["r_avg"], 2)
             if ratings["p_avg"]:
                 ratings["p_avg"] = int(ratings["p_avg"])
+            if info['type'] == 'Hotel':
+                hotel = db.get_hotel_info(conn, eid)
+                return render_template('hotel.html', establishment = info,
+                                       ratings = ratings, page_title = info['name'], hotel=hotel)
+            if info['type'] == 'Restaurant':
+                restaurant = db.get_restaurant_info(conn, eid)
+                return render_template('restaurant.html', establishment = info,
+                                                       ratings = ratings, page_title = info['name'], 
+                                                       restaurant=restaurant)
+            if info['type'] == 'Activity':
+                activity = db.get_activity_info(conn, eid)
+                return render_template('activity.html', establishment = info,
+                                                        ratings = ratings, page_title = info['name'], 
+                                                        activity=activity)
             return render_template('establishment.html', 
                 establishment = info,
                 ratings = ratings, page_title = info['name'])
