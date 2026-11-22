@@ -3,23 +3,23 @@
 <h1>Add an Establishment</h1>
 <p>You can add your establishment to an itinerary or leave a review by visiting its establishment page.</p>
 <form method="POST" action="{{url_for('add_establishment')}}">
-    <p><label for="name">Name:</label>
-    <input type="text" name="name" required></p>
-    <p><label for="type">Type:</label>
+    <p><label>Name:
+    <input type="text" name="name" required></label></p>
+    <p><label>Type:
     <select name="type" required>
         <option value="">Choose One</option>
         <option value="Hotel">Hotel</option>
         <option value="Restaurant">Restaurant</option>
         <option value="Activity">Activity</option>
-        </select></p>
-    <p><label for="website">Website:</label>
-    <input type="text" name="website"></p>
-    <p><label for="city" required>City:</label>
-    <input type="text" name="city"></p>
-    <p><label for="country">Country:</label>
-    <input type="text" name="country" required></p>
-    <p><label for="description">Description:</label>
-    <textarea name="description" id = "review" rows="10" cols="30"></textarea></p>
+        </select></label></p>
+    <p><label>Website:
+    <input type="text" name="website"></label></p>
+    <p><label>City:
+    <input type="text" name="city" required></label></p>
+    <p><label>Country:
+    <input type="text" name="country" required></label></p>
+    <p><label>Description:
+    <textarea name="description" id = "review" rows="10" cols="30"></textarea></label></p>
     <p><input type="submit" name="submit-btn" value="Submit"></p>
 </form>
 {% endblock %}

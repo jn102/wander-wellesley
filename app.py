@@ -246,7 +246,7 @@ def search_by_type():
 def login():
     with dbi.connect() as conn:
         if request.method == "GET":
-            return render_template('login.html')
+            return render_template('login.html', page_title = "Login")
         else:
             email = request.form.get('email')
             password = request.form.get('password')
