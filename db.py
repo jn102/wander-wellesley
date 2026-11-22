@@ -175,6 +175,7 @@ def check_password(conn, email, password):
                             WHERE email = %s''',
                             [email])
         return curs.fetchone()
+        
 def delete_establishment(conn, eid):
     '''Deletes an establishment from the hotel/restaurant/activity tables
         and the general establishment table by eid.'''
