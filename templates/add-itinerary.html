@@ -4,20 +4,20 @@
 <p>You can add establishemnts to your itinerary by 
     visiting an establishment page and selecting "Add to Itinerary".</p>
 <form method="POST" action="{{url_for('add_itinerary')}}">
-    <p><label for="city">What city is your itinerary in?</label>
-    <input type="text" name="city"></p>
-    <p><label for="country">What country is your itinerary in?</label>
-    <input type="text" name="country"></p>
-    <p><label for="season">What season is your itinerary for?</label>
+    <p><label>What city is your itinerary in?
+    <input type="text" name="city"></label></p>
+    <p><label>What country is your itinerary in?
+    <input type="text" name="country"></label></p>
+    <p><label>What season is your itinerary for?
     <select name="season">
         <option value="None">Choose One</option>
         <option value="Summer">Summer</option>
         <option value="Spring">Spring</option>
         <option value="Fall">Fall</option>
         <option value="Winter">Winter</option>
-        </select></p>
-    <p><label for="name">What do you want to name your itinerary?</label>
-    <input type="text" name="name"></p>
+        </select></label></p>
+    <p><label>What do you want to name your itinerary?
+    <input type="text" name="name"></label></p>
     <p><input type="submit" name="submit-btn" value="Submit"></p>
 </form>
 {% endblock %}
