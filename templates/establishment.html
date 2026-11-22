@@ -16,7 +16,7 @@
 <p>Average rating: {{ratings.r_avg}}</p>
 
 <p>Reported price level: {% if ratings.p_avg %}{{ '$' * ratings.p_avg}}
-    {% else %} ? {% endif %}
+    {% else %} None {% endif %}
 </p>
 
 {% block establishment_specific %}

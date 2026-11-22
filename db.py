@@ -24,13 +24,13 @@ def get_establishments_by_type(conn, type):
                         WHERE type = %s ;''', [type])
         return curs.fetchall()
 
-def add_establishment(conn, info):
+def add_establishment(conn, info, uid):
     '''Adds an establishment to the table. Returns its eid.'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''INSERT INTO establishment (name, type, website, country, city, description)
-                    VALUES (%s, %s, %s, %s, %s, %s);''', 
+        curs.execute('''INSERT INTO establishment (name, type, website, country, city, description, addedby)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s);''', 
                     [info['name'], info['type'], info['website'], info['country'],
-                             info['city'], info['description']])
+                             info['city'], info['description'], uid])
         conn.commit()
         return curs.lastrowid
 
@@ -81,13 +81,13 @@ def validate_email(conn, email):
         else:
             return True
 
-def add_itinerary(conn, info):
+def add_itinerary(conn, info, uid):
     '''Adds an itinerary to the table. Returns its itinerary ID.'''
     with dbi.dict_cursor(conn) as curs:
         curs.execute('''INSERT INTO itinerary(city, country, season, name, user)
                        VALUES(%s, %s, %s, %s, %s)''',
                      [info['city'], info['country'], info['season'], info['name'],
-                       info['user']])
+                       uid])
         conn.commit()
         return curs.lastrowid
         
@@ -154,10 +154,10 @@ def get_itinerary_info(conn, iid):
         places = curs.fetchall()
         return info, places
 
-def get_itineraries(conn):
-    '''Returns iid and name for all itineraries in the database.'''
+def get_itineraries(conn, uid):
+    '''Returns iid and name for all itineraries in the database for given user.'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT iid, name FROM itinerary''')
+        curs.execute('''SELECT iid, name FROM itinerary WHERE user=%s''', uid)
         return curs.fetchall()
 
 def add_to_itinerary(conn, iid, eid):

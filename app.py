@@ -32,12 +32,16 @@ def add_establishment():
     '''Adds an establishment to the table based on user input.
         Will redirect to appropriate type of form to add further information about
         the specific kind of establishment.'''
+    if 'uid' not in session:
+        flash('You must be logged in to add an establishment.')
+        return redirect(url_for('login'))
     if request.method == "GET":
         return render_template('add-establishment.html', page_title = "Add Establishment")
     elif request.method == "POST":
         with dbi.connect() as conn:
             info = request.form
-            last_insert_id = db.add_establishment(conn, info) # new eid
+            uid = session['uid']
+            last_insert_id = db.add_establishment(conn, info, uid) # new eid
         if info["type"] == "Hotel":
             return redirect(url_for("add_hotel", eid=last_insert_id))
         elif info["type"] == "Restaurant":
@@ -101,12 +105,16 @@ def add_itinerary():
     '''Adds an itinerary to the table. The itinerary will be empty, but it will
         have a name, season, place, etc. The user can then go to establishment pages
         to add places to their itinerary.'''
+    if 'uid' not in session:
+        flash('You must be logged in to create an itinerary.')
+        return redirect(url_for('login'))
     if request.method == 'GET':
         return render_template('add-itinerary.html', page_title = "Add Itinerary")
     elif request.method == 'POST':
         info = request.form
+        uid = session['uid']
         with dbi.connect() as conn:
-            iid = db.add_itinerary(conn, info)
+            iid = db.add_itinerary(conn, info, uid)
         flash(f'Itinerary {info['name']} added successfully')
         return redirect(url_for("itinerary", iid=iid))
 
@@ -138,7 +146,7 @@ def create_account():
                     return render_template('createAccount.html', page_title='Create Account')
                 uid = db.add_account(conn, email, name, password)
                 flash(f"Account created for {email} with UID = {uid}")
-                return redirect(url_for('index'))
+                return redirect(url_for('login'))
 
 @app.route('/review/<eid>', methods = ['GET', 'POST'])
 def add_review(eid):
@@ -200,7 +208,8 @@ def add_to_itinerary(eid):
             flash(f'No establishment with eid {eid}')
             return redirect(url_for('index'))
         if request.method == 'GET':
-            itineraries = db.get_itineraries(conn)
+            uid = session['uid']
+            itineraries = db.get_itineraries(conn, uid)
             return render_template('add-to-itinerary.html', itineraries = itineraries, 
                                    eid=eid, page_title = "Add Establishment to Itinerary")
         elif request.method == 'POST':
@@ -257,6 +266,9 @@ def login():
 @app.route('/update_establishment/<eid>', methods=['GET', 'POST'])
 def update_establishment(eid):
     '''Updates general establishment information based on user input.'''
+    if 'uid' not in session:
+        flash('You must be logged in to update an establishment.')
+        return redirect(url_for('login'))
     with dbi.connect() as conn:
         establishment = db.get_establishment_info(conn, eid)
         if not establishment:
@@ -275,6 +287,11 @@ def update_establishment(eid):
 
 @app.route('/delete_establishment/<eid>', methods=["POST"])
 def delete_establishment(eid):
+    '''Deletes the specifiedestablishment. A user must be logged in to delete an 
+        establishment.'''
+    if 'uid' not in session:
+            flash('You must be logged in to delete an establishment.')
+            return redirect(url_for('login'))
     with dbi.connect() as conn:
         establishment = db.get_establishment_info(conn, eid)
         if not establishment:
