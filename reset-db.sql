@@ -20,7 +20,8 @@ CREATE TABLE `establishment` (
   `website` varchar(200),
   `country` varchar(50),
   `city` varchar(50),
-  `description` varchar(200)
+  `description` varchar(200),
+  `addedby` int
 );
 
 CREATE TABLE `restaurant` (
@@ -75,6 +76,8 @@ CREATE TABLE `visit` (
   `iid` int,
   `eid` int
 );
+
+ALTER TABLE `establishment` ADD FOREIGN KEY (`addedby`) REFERENCES `user` (`uid`);
 
 ALTER TABLE `restaurant` ADD FOREIGN KEY (`eid`) REFERENCES `establishment` (`eid`);
 
