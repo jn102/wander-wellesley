@@ -155,7 +155,7 @@ def view_itineraries():
         return(redirect(url_for('login')))
     with dbi.connect() as conn:
         itineraries = db.get_itineraries(conn, session['uid'], '%', '%')
-        return render_template('view-itineraries.html', itineraries=itineraries)
+        return render_template('view-itineraries.html', itineraries=itineraries, page_title="View Itineraries")
 
 @app.route('/review/<eid>', methods = ['GET', 'POST'])
 def add_review(eid):
