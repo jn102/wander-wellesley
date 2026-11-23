@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Itineraries for {{session['email']}}</h1>
+{%if itineraries%}
+<ol>
+{% for itinerary in itineraries %}
+<li><a href={{url_for('itinerary', iid=itinerary.iid)}}>{{itinerary.name}}</a> is an itinerary
+    in {{itinerary.city}}, {{itinerary.country}}.</li>
+{% endfor %}
+</ol>
+{% else %}
+You have no itineraries. Try <a href="{{url_for('add_itinerary')}}">creating an itinerary</a>.
+{% endif %}
+{% endblock %}
