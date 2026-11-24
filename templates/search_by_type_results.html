@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block main_content %}
+{%if type == 'Activity'%}
+<h1>Activities</h1>
+{%else%}
 <h1>{{type}}s</h1>
+{%endif%}
+
 {%if establishments%}
 <ol>
 {%for place in establishments%}
