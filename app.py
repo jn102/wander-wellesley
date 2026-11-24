@@ -305,7 +305,7 @@ def update_establishment(eid):
 
 @app.route('/delete_establishment/<eid>', methods=["POST"])
 def delete_establishment(eid):
-    '''Deletes the specifiedestablishment. A user must be logged in to delete an 
+    '''Deletes the specified establishment. A user must be logged in to delete an 
         establishment.'''
     if 'uid' not in session:
             flash('You must be logged in to delete an establishment.')
@@ -318,6 +318,32 @@ def delete_establishment(eid):
             db.delete_establishment(conn, eid)
             flash('Establishment deleted successfully')
         return redirect(url_for('index'))
+
+@app.route('/reviews/<eid>')
+def reviews(eid):
+    '''renders a page with all the reviews of the given establishment'''
+    with dbi.connect() as conn:
+        if db.get_establishment(conn, eid):
+            reviews = db.get_reviews(conn, eid)
+            name = db.get_establishment_info(conn, eid)
+            name = name['name']
+            return render_template('establishment-reviews.html', reviews = reviews, name = name, page_title = "Reviews")
+        else:
+            flash("No establishment with that id")
+            return redirect(url_for('index'))
+
+@app.route('/logout/')
+def logout():
+    '''clears the sessionto logout the user'''
+    if 'uid' in session:
+        uid = session['uid']
+        session.clear()         
+        flash('You have been logged out')
+        return redirect(url_for('index'))
+    else:
+        flash('you are not logged in. Please login or create an account')
+        return redirect( url_for('index'))
+    
 
 if __name__ == '__main__':
     import sys, os
