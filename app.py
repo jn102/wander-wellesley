@@ -148,6 +148,15 @@ def create_account():
                 flash(f"Account created for {email} with UID = {uid}")
                 return redirect(url_for('login'))
 
+@app.route('/view-itineraries/')
+def view_itineraries():
+    if 'uid' not in session:
+        flash('You must be logged in to view your itineraries.')
+        return(redirect(url_for('login')))
+    with dbi.connect() as conn:
+        itineraries = db.get_itineraries(conn, session['uid'], '%', '%')
+        return render_template('view-itineraries.html', itineraries=itineraries, page_title="View Itineraries")
+
 @app.route('/review/<eid>', methods = ['GET', 'POST'])
 def add_review(eid):
     '''Adds a review to the review table for establishment with eid based on user input.'''
@@ -204,12 +213,16 @@ def add_to_itinerary(eid):
     '''Adds an establishment to an itinerary based on user choice. Must
         be an existing establishment. Redirects to itinerary view page on success.'''
     with dbi.connect() as conn:
-        if not db.get_establishment_info(conn, eid):
+        place = db.get_establishment_info(conn, eid)
+        if not place:
             flash(f'No establishment with eid {eid}')
             return redirect(url_for('index'))
         if request.method == 'GET':
             uid = session['uid']
-            itineraries = db.get_itineraries(conn, uid)
+            itineraries = db.get_itineraries(conn, uid, place['city'], place['country'])
+            if not itineraries:
+                flash('First, create an itinerary in this city.')
+                return redirect(url_for('add_itinerary'))
             return render_template('add-to-itinerary.html', itineraries = itineraries, 
                                    eid=eid, page_title = "Add Establishment to Itinerary")
         elif request.method == 'POST':
@@ -245,6 +258,9 @@ def search_by_type():
 @app.route('/login/', methods=["GET", "POST"])
 def login():
     with dbi.connect() as conn:
+        if 'uid' in session:
+            flash("You are already logged in.")
+            return redirect(url_for('index'))
         if request.method == "GET":
             return render_template('login.html', page_title = "Login")
         else:
@@ -257,6 +273,7 @@ def login():
             if bcrypt.verify(password, row['password_hash']):
                 flash("Login Successful")
                 session['uid'] = row['uid']
+                session['email'] = email
                 session['logged_in'] = True
                 return redirect(url_for('index'))
             else:
@@ -271,6 +288,7 @@ def update_establishment(eid):
         return redirect(url_for('login'))
     with dbi.connect() as conn:
         establishment = db.get_establishment_info(conn, eid)
+        print(establishment)
         if not establishment:
             flash('Establishment does not exist')
             return redirect(url_for('index'))

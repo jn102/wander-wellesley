@@ -144,7 +144,7 @@ def get_itinerary_info(conn, iid):
                         where iid = %s''',
                         [iid])
         info = curs.fetchone()
-        curs.execute('''SELECT establishment.name as name, type, 
+        curs.execute('''SELECT establishment.eid as eid, establishment.name as name, type, 
                         establishment.city as city, establishment.country as country 
                         FROM establishment
                         INNER JOIN visit USING (eid)
@@ -154,10 +154,12 @@ def get_itinerary_info(conn, iid):
         places = curs.fetchall()
         return info, places
 
-def get_itineraries(conn, uid):
+def get_itineraries(conn, uid, city, country):
     '''Returns iid and name for all itineraries in the database for given user.'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT iid, name FROM itinerary WHERE user=%s''', uid)
+        curs.execute('''SELECT iid, name, city, country FROM 
+                    itinerary WHERE user=%s AND city LIKE %s AND country LIKE %s''', 
+                     [uid, city, country])
         return curs.fetchall()
 
 def add_to_itinerary(conn, iid, eid):

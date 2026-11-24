@@ -8,7 +8,7 @@
     <p><label for="website">Website:</label>
     <input type="text" name="website" value = "{{info['website']}}"></p>
     <p><label for="description">Description:</label>
-    <textarea name="description" id = "review" rows="10" cols="30" value = "{{info['description']}}"></textarea></p>
+    <textarea name="description" id = "review" rows="10" cols="30">{{info['description']}}</textarea></p>
     <p><input type="submit" name="submit-btn" value="Submit"></p>
 </form>
 {% endblock %}
