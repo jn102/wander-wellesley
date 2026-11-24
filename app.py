@@ -331,6 +331,18 @@ def reviews(eid):
         else:
             flash("No establishment with that id")
             return redirect(url_for('index'))
+
+@app.route('/logout/')
+def logout():
+    '''clears the sessionto logout the user'''
+    if 'uid' in session:
+        uid = session['uid']
+        session.clear()         
+        flash('You have been logged out')
+        return redirect(url_for('index'))
+    else:
+        flash('you are not logged in. Please login or create an account')
+        return redirect( url_for('index'))
     
 
 if __name__ == '__main__':
