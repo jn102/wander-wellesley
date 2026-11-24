@@ -27,8 +27,13 @@ HTML {
 }
 
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h4, h5, h6 {
     color: var(--color-header);
+}
+
+
+h3{
+    color: darkslategrey;
 }
 
 h1 {
@@ -88,4 +93,9 @@ nav button:hover, button:focus, nav a:hover, nav a:focus {
     background-color: var(--color-focus);
 }
 
+.review{
+    border: 2px solid gray;
+    border-radius: 8px;
+    padding: 10px;
+}
 

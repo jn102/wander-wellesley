@@ -232,3 +232,14 @@ def update_establishment(conn, eid, info):
                         WHERE eid = %s''',
                      [info['website'], info['name'], info['description'], eid] )
         conn.commit()
+
+def get_reviews(conn, eid):
+    '''gets all reviews for the given establishment'''
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''SELECT  name, review_body, 
+                        price, stars, image, date_added, 
+                        date_visited 
+                        FROM review inner join user on (user = uid)
+                        WHERE eid = %s''',
+                        [eid] )
+        return curs.fetchall()
