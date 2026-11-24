@@ -17,7 +17,7 @@
     {%endif%}
 
     {%if review.image%}
-    <img src={{review.image}} alt="Review Image">
+    <img src= "{{url_for('review_pic', rid = review.rid)}}" alt="Review Image" width="300">
     {%endif%}
 
     <p>{{review.stars}}/5 Stars</p>

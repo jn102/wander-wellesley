@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block main_content %}
-<form method="POST" action="{{url_for('add_review', eid=eid)}}">
+<form method="POST" action="{{url_for('add_review', eid=eid)}}" enctype="multipart/form-data">
 
       <tr><td class = formtablerow>Rating</td>
         <td class = formtablerow>
@@ -57,6 +57,8 @@
 
 <p><label for="review_body">Comments:</label><p></p>
 <p><textarea id="review_body" name="comments" rows=5 cols=30></textarea></p>
+
+<p><label>Image <input type="file" name="pic"></label></p>
 
 <p><button id = "submitbutton"
     type="submit">Submit</button></p>

@@ -125,6 +125,16 @@ def add_review(conn, eid, user, stars, price, body, date_visited):
                         VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, %s)''', 
                         [eid, user, stars, price, body, date_visited])
         conn.commit()
+    return curs.lastrowid
+
+def add_review_image(conn, filename, rid):
+    '''Adds an image to the given review'''
+    with dbi.dict_cursor(conn) as curs:
+        curs.execute('''UPDATE review 
+                        SET image = %s
+                        WHERE rid = %s''', 
+                        [filename, rid])
+        conn.commit()
 
 def get_establishment_rating_price(conn, eid):
     '''Gets the average rating and price from the review table for 
@@ -240,7 +250,7 @@ def get_reviews(conn, eid):
     with dbi.dict_cursor(conn) as curs:
         curs.execute('''SELECT  name, review_body, 
                         price, stars, image, date_added, 
-                        date_visited 
+                        date_visited, rid
                         FROM review inner join user on (user = uid)
                         WHERE eid = %s''',
                         [eid] )
