@@ -1,3 +1,6 @@
+'''Runs Wander Wellesley, a travel website for college students.
+    Authors: Katie Emerson, Julia Niemann
+    Date: Nov 23 2026'''
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug.utils import secure_filename
@@ -150,10 +153,12 @@ def create_account():
 
 @app.route('/view-itineraries/')
 def view_itineraries():
+    '''Renders a list of the logged in user's itineraries.'''
     if 'uid' not in session:
         flash('You must be logged in to view your itineraries.')
         return(redirect(url_for('login')))
     with dbi.connect() as conn:
+        # the '%' symbols are to select itineraries from any city and country.
         itineraries = db.get_itineraries(conn, session['uid'], '%', '%')
         return render_template('view-itineraries.html', itineraries=itineraries, page_title="View Itineraries")
 
@@ -217,6 +222,9 @@ def add_to_itinerary(eid):
         if not place:
             flash(f'No establishment with eid {eid}')
             return redirect(url_for('index'))
+        if 'uid' not in session:
+            flash('You must be logged in.')
+            return redirect(url_for('login'))
         if request.method == 'GET':
             uid = session['uid']
             itineraries = db.get_itineraries(conn, uid, place['city'], place['country'])
@@ -266,14 +274,15 @@ def login():
         else:
             email = request.form.get('email')
             password = request.form.get('password')
-            row = db.check_password(conn, email, password)
+            row = db.check_password(conn, email)
+            print(row)
             if row is None:
                 flash("No account with this email")
                 return redirect(url_for('create_account'))
             if bcrypt.verify(password, row['password_hash']):
                 flash("Login Successful")
                 session['uid'] = row['uid']
-                session['email'] = email
+                session['name'] = row['name']
                 session['logged_in'] = True
                 return redirect(url_for('index'))
             else:

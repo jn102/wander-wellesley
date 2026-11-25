@@ -1,1 +1,1 @@
-# wander-wellesley
+# Wander Wellesley

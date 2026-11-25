@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Itineraries for {{session['email']}}</h1>
+<h1>Itineraries for {{session['name']}}</h1>
 {%if itineraries%}
 <ol>
 {% for itinerary in itineraries %}
