@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block main_content %}
+<h1>Reviews for {{name}}</h1>
+
+{%if not reviews%}
+<p>There are no reviews for {{name}}</p>
+{%endif%}
+
+{%for review in reviews%}
+
+<div class = review>
+
+    <h2>{{review.name}} on {{review.date_added}}</h2>
+
+    {%if review.review_body%}
+    <h3>{{review.review_body}}</h3>
+    {%endif%}
+
+    {%if review.image%}
+    <img src= "{{url_for('review_pic', rid = review.rid)}}" alt="Review Image" width="300">
+    {%endif%}
+
+    <p>{{review.stars}}/5 Stars</p>
+    <p>Price level: {{review.price}}</p>
+
+    <p>Visited {{review.date_visited}}</p>
+
+</div>
+
+{% endfor %}
+{% endblock %}

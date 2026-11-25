@@ -10,9 +10,13 @@ import secrets
 import cs304dbi as dbi
 import db
 from passlib.hash import bcrypt
+import os
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
+
+app.config['UPLOADS'] = '/students/wanderw/uploads/'
+app.config['MAX_CONTENT_LENGTH'] = 2*1024*1024
 
 # configure DBI
 
@@ -177,7 +181,17 @@ def add_review(eid):
             price = request.form.get('price')
             body = request.form.get('comments')
             date_visited = request.form.get('date_visited')
-            db.add_review(conn, eid, user, stars, price, body, date_visited)
+            rid = db.add_review(conn, eid, user, stars, price, body, date_visited)
+
+            if request.files['pic']:
+                f = request.files['pic']
+                user_filename = f.filename
+                ext = user_filename.split('.')[-1]
+                filename = secure_filename(f'review{rid}.{ext}')
+                pathname = os.path.join(app.config['UPLOADS'],filename)
+                f.save(pathname)
+                os.chmod(pathname, 0o444)
+                db.add_review_image(conn, filename, rid)
             return redirect(url_for('view_establishment', eid=eid))
 
 @app.route('/establishment/<eid>')
@@ -314,7 +328,7 @@ def update_establishment(eid):
 
 @app.route('/delete_establishment/<eid>', methods=["POST"])
 def delete_establishment(eid):
-    '''Deletes the specifiedestablishment. A user must be logged in to delete an 
+    '''Deletes the specified establishment. A user must be logged in to delete an 
         establishment.'''
     if 'uid' not in session:
             flash('You must be logged in to delete an establishment.')
@@ -327,6 +341,48 @@ def delete_establishment(eid):
             db.delete_establishment(conn, eid)
             flash('Establishment deleted successfully')
         return redirect(url_for('index'))
+
+@app.route('/reviews/<eid>')
+def reviews(eid):
+    '''renders a page with all the reviews of the given establishment'''
+    with dbi.connect() as conn:
+        if db.get_establishment(conn, eid):
+            reviews = db.get_reviews(conn, eid)
+            name = db.get_establishment_info(conn, eid)
+            name = name['name']
+            uploads = app.config['UPLOADS']
+            return render_template('establishment-reviews.html', reviews = reviews, 
+            name = name, uploads = uploads, page_title = "Reviews")
+        else:
+            flash("No establishment with that id")
+            return redirect(url_for('index'))
+
+@app.route('/logout/')
+def logout():
+    '''clears the sessionto logout the user'''
+    if 'uid' in session:
+        uid = session['uid']
+        session.clear()         
+        flash('You have been logged out')
+        return redirect(url_for('index'))
+    else:
+        flash('you are not logged in. Please login or create an account')
+        return redirect( url_for('index'))
+
+@app.route('/review-pic/<rid>')
+def review_pic(rid):
+    '''gets the image for the given review'''
+    with dbi.connect() as conn:
+        with dbi.dict_cursor(conn) as curs:
+            numrows = curs.execute(
+                '''select image from review where rid = %s''',
+                [rid])
+            if numrows == 0:
+                flash(f'No picture for {nm}')
+                return redirect(url_for('index'))
+            row = curs.fetchone()
+            return send_from_directory(app.config['UPLOADS'],row['image'])
+    
 
 if __name__ == '__main__':
     import sys, os
