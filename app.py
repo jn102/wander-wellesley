@@ -269,6 +269,8 @@ def search_by_type():
 
 @app.route('/login/', methods=["GET", "POST"])
 def login():
+    '''Logs in the user, as long as they have the right password.
+        Sets the uid, name, and logged_in fields in the session.'''
     with dbi.connect() as conn:
         if 'uid' in session:
             flash("You are already logged in.")
@@ -279,7 +281,6 @@ def login():
             email = request.form.get('email')
             password = request.form.get('password')
             row = db.check_password(conn, email)
-            print(row)
             if row is None:
                 flash("No account with this email")
                 return redirect(url_for('create_account'))
@@ -293,7 +294,7 @@ def login():
                 flash("Incorrect email or password")
                 return redirect(url_for('index'))
 
-@app.route('/update_establishment/<eid>', methods=['GET', 'POST'])
+@app.route('/update-establishment/<eid>', methods=['GET', 'POST'])
 def update_establishment(eid):
     '''Updates general establishment information based on user input.'''
     if 'uid' not in session:
@@ -301,7 +302,6 @@ def update_establishment(eid):
         return redirect(url_for('login'))
     with dbi.connect() as conn:
         establishment = db.get_establishment_info(conn, eid)
-        print(establishment)
         if not establishment:
             flash('Establishment does not exist')
             return redirect(url_for('index'))
@@ -316,7 +316,7 @@ def update_establishment(eid):
             flash(f'Establishment with ID={eid} updated successfully')
             return redirect(url_for('view_establishment', eid=eid))
 
-@app.route('/delete_establishment/<eid>', methods=["POST"])
+@app.route('/delete-establishment/<eid>', methods=["POST"])
 def delete_establishment(eid):
     '''Deletes the specified establishment. A user must be logged in to delete an 
         establishment.'''
@@ -334,7 +334,7 @@ def delete_establishment(eid):
 
 @app.route('/reviews/<eid>')
 def reviews(eid):
-    '''renders a page with all the reviews of the given establishment'''
+    '''Renders a page with all the reviews of the given establishment'''
     with dbi.connect() as conn:
         if db.get_establishment(conn, eid):
             reviews = db.get_reviews(conn, eid)
@@ -349,7 +349,7 @@ def reviews(eid):
 
 @app.route('/logout/')
 def logout():
-    '''clears the sessionto logout the user'''
+    '''Clears the session to logout the user'''
     if 'uid' in session:
         uid = session['uid']
         session.clear()         
