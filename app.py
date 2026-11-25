@@ -182,16 +182,6 @@ def add_review(eid):
             body = request.form.get('comments')
             date_visited = request.form.get('date_visited')
             rid = db.add_review(conn, eid, user, stars, price, body, date_visited)
-
-            if request.files['pic']:
-                f = request.files['pic']
-                user_filename = f.filename
-                ext = user_filename.split('.')[-1]
-                filename = secure_filename(f'review{rid}.{ext}')
-                pathname = os.path.join(app.config['UPLOADS'],filename)
-                f.save(pathname)
-                os.chmod(pathname, 0o444)
-                db.add_review_image(conn, filename, rid)
             return redirect(url_for('view_establishment', eid=eid))
 
 @app.route('/establishment/<eid>')
@@ -368,21 +358,7 @@ def logout():
     else:
         flash('you are not logged in. Please login or create an account')
         return redirect( url_for('index'))
-
-@app.route('/review-pic/<rid>')
-def review_pic(rid):
-    '''gets the image for the given review'''
-    with dbi.connect() as conn:
-        with dbi.dict_cursor(conn) as curs:
-            numrows = curs.execute(
-                '''select image from review where rid = %s''',
-                [rid])
-            if numrows == 0:
-                flash(f'No picture for {nm}')
-                return redirect(url_for('index'))
-            row = curs.fetchone()
-            return send_from_directory(app.config['UPLOADS'],row['image'])
-    
+  
 
 if __name__ == '__main__':
     import sys, os

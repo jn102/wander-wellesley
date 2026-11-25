@@ -16,10 +16,6 @@
     <h3>{{review.review_body}}</h3>
     {%endif%}
 
-    {%if review.image%}
-    <img src= "{{url_for('review_pic', rid = review.rid)}}" alt="Review Image" width="300">
-    {%endif%}
-
     <p>{{review.stars}}/5 Stars</p>
     <p>Price level: {{review.price}}</p>
 
