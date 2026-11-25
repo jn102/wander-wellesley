@@ -63,7 +63,8 @@ def add_restaurant(eid):
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment_info(conn, eid):
-                return render_template("add-restaurant.html", eid=eid, page_title = "Add Restaurant")
+                return render_template("add-restaurant.html", eid=eid,
+                                        page_title = "Add Restaurant")
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
@@ -97,7 +98,8 @@ def add_activity(eid):
     with dbi.connect() as conn:
         if request.method == "GET":
             if db.get_establishment_info(conn, eid):
-                return render_template("add-activity.html", eid=eid, page_title = "Add Activity")
+                return render_template("add-activity.html", eid=eid, 
+                                       page_title = "Add Activity")
             else:
                 flash(f'Establishment not found.')
                 return redirect(url_for("index"))
@@ -130,11 +132,13 @@ def itinerary(iid):
     '''View an existing itinerary based on its iid.'''
     with dbi.connect() as conn:
         info, places = db.get_itinerary_info(conn, iid)
-        return render_template('view-itinerary.html', itinerary=info, places=places, page_title = info['name'])
+        return render_template('view-itinerary.html', itinerary=info, 
+                               places=places, page_title = info['name'])
 
 @app.route('/createaccount/', methods = ['GET', 'POST'])
 def create_account():
-    '''Create an account with name, email, and password if email is new and a Wellesley email.
+    '''Create an account with name, email, and password if email is 
+        new and a Wellesley email.
         On success, returns home.'''
     if request.method == 'GET':
         return render_template('createAccount.html', page_title='Create Account')
@@ -164,11 +168,13 @@ def view_itineraries():
     with dbi.connect() as conn:
         # the '%' symbols are to select itineraries from any city and country.
         itineraries = db.get_itineraries(conn, session['uid'], '%', '%')
-        return render_template('view-itineraries.html', itineraries=itineraries, page_title="View Itineraries")
+        return render_template('view-itineraries.html', 
+                               itineraries=itineraries, page_title="View Itineraries")
 
 @app.route('/review/<eid>', methods = ['GET', 'POST'])
 def add_review(eid):
-    '''Adds a review to the review table for establishment with eid based on user input.'''
+    '''Adds a review to the review table for establishment with 
+        eid based on user input.'''
     with dbi.connect() as conn:
         if 'uid' not in session:
             flash('you must be logged in') 
@@ -248,7 +254,8 @@ def search():
     '''Search for establishment based on city and country.'''
     with dbi.connect() as conn:
         if request.method == 'GET':
-            return render_template('search-establishment.html', page_title = "Search Establishments by City/Country")
+            return render_template('search-establishment.html', 
+                                   page_title = "Search Establishments by City/Country")
         if request.method == 'POST':
             city = request.form['city']
             country = request.form['country']
@@ -259,7 +266,8 @@ def search():
 
 @app.route('/search-by-type/', methods=['POST'])
 def search_by_type():
-    '''Search for an establishment based on its type. Handles responses to search-establishment's second form.'''
+    '''Search for an establishment based on its type. 
+        Handles responses to search-establishment's second form.'''
     with dbi.connect() as conn:
         type = request.form['type']
         establishments = db.get_establishments_by_type(conn, type)
@@ -306,7 +314,8 @@ def update_establishment(eid):
             flash('Establishment does not exist')
             return redirect(url_for('index'))
         if request.method == 'GET':
-            return render_template('update-establishment.html', eid=eid, info=establishment, page_title = 'Update Establishment')
+            return render_template('update-establishment.html', eid=eid, info=establishment, 
+                                   page_title = 'Update Establishment')
         else:
             info = request.form
             for val in info: # for NULL values
