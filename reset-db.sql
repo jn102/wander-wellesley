@@ -1,9 +1,12 @@
+-- Resets the database wanderw_db and all relevant tables.
+-- Used to clear out junk data in the testing process.
+-- Authors: Katie Emerson, Julia Niemann
+-- Date: Nov 23 2026
 use wanderw_db;
 
 drop table if exists hotel, restaurant, activity, visit, itinerary;
 drop table if exists review;
 drop table if exists establishment, user;
-
 
 CREATE TABLE `user` (
   `email` char(19) not null,

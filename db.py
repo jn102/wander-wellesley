@@ -1,5 +1,7 @@
+'''Provides database functions for the Wander Wellesley app, in the wanderw_db database.
+    Authors: Julia Niemann and Katie Emerson
+    Date: Nov 23 2026'''
 import cs304dbi as dbi
-
 
 def get_establishment(conn, eid):
     '''Returns true if an establishment exists by eid.'''
@@ -14,13 +16,15 @@ def get_establishment(conn, eid):
 def get_establishments(conn, city, country):
     '''Returns all information about establishments in a particular city and country.'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT * FROM establishment
+        curs.execute('''SELECT eid, name, type, website, country, city, description, addedby
+                        FROM establishment
                         WHERE city = %s AND country = %s;''', [city, country])
         return curs.fetchall()
 
 def get_establishments_by_type(conn, type):
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT * FROM establishment
+        curs.execute('''SELECT eid, name, type, website, country, city, description, addedby
+                        FROM establishment
                         WHERE type = %s ;''', [type])
         return curs.fetchall()
 
@@ -94,27 +98,31 @@ def add_itinerary(conn, info, uid):
 def get_establishment_info(conn, eid):
     '''Gets all information about an establishment by eid.'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''select * from establishment
+        curs.execute('''select eid, name, type, website, country, city, description, addedby 
+                        from establishment
                         where eid = %s''',
                         [eid])
         return curs.fetchone()
 
 def get_hotel_info(conn, eid):
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT * FROM hotel WHERE
-                        eid = %s''', [eid])
+        curs.execute('''SELECT eid, gym, breakfast, pool, laundry, check_in_time, check_out_time
+                        FROM hotel 
+                        WHERE eid = %s''', [eid])
         return curs.fetchone()
 
 def get_restaurant_info(conn, eid):
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT * FROM restaurant WHERE
-                        eid = %s''', [eid])
+        curs.execute('''SELECT eid, cuisine, reservations, outdoor_seating, credit_card, hours 
+                        FROM restaurant 
+                        WHERE eid = %s''', [eid])
         return curs.fetchone()
 
 def get_activity_info(conn, eid):
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT * FROM activity WHERE
-                        eid = %s''', [eid])
+        curs.execute('''SELECT eid, hours, outdoors, student_discount, ticket 
+                        FROM activity 
+                        WHERE eid = %s''', [eid])
         return curs.fetchone()
 
 def add_review(conn, eid, user, stars, price, body, date_visited):
@@ -150,7 +158,8 @@ def get_itinerary_info(conn, iid):
     '''Returns information about an itinerary (dict) and a list of places
         associated with that itinerary (dict) by iid.'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''select * from itinerary
+        curs.execute('''select user, iid, country, city, season, name 
+                        from itinerary
                         where iid = %s''',
                         [iid])
         info = curs.fetchone()
@@ -179,48 +188,15 @@ def add_to_itinerary(conn, iid, eid):
                      [iid, eid])
         conn.commit()
 
-def check_password(conn, email, password):
-    '''Checks if a given password matches the hash value saved for the user'''
+def check_password(conn, email):
+    '''Gets uid, password hash, name for a user with given email'''
     with dbi.dict_cursor(conn) as curs:
-        curs.execute('''select uid,password_hash
+        curs.execute('''select uid, password_hash, name
                             FROM user
                             WHERE email = %s''',
                             [email])
         return curs.fetchone()
         
-def delete_establishment(conn, eid):
-    '''Deletes an establishment from the hotel/restaurant/activity tables
-        and the general establishment table by eid.'''
-    with dbi.dict_cursor(conn) as curs:
-        curs.execute('''SELECT type FROM establishment WHERE eid=%s''', [eid])
-        type = curs.fetchone()['type']
-        if type == 'Hotel':
-            curs.execute('''DELETE FROM hotel WHERE eid=%s''', [eid])
-        elif type == 'Restaurant':
-            curs.execute('''DELETE FROM restaurant WHERE eid=%s''', [eid])
-        else:
-            curs.execute('''DELETE FROM activity WHERE eid=%s''', [eid])
-        conn.commit()
-        curs.execute('''DELETE FROM establishment WHERE eid=%s''', [eid])
-        conn.commit()
-
-def update_establishment(conn, eid, info):
-    '''Updates an establishment's website, name, and description.'''
-    with dbi.dict_cursor(conn) as curs:
-        curs.execute('''UPDATE establishment SET website = %s, name = %s, description = %s
-                        WHERE eid = %s''',
-                     [info['website'], info['name'], info['description'], eid] )
-        conn.commit()
-
-
-def check_password(conn, email, password):
-    '''Checks if a given password matches the hash value saved for the user'''
-    with dbi.dict_cursor(conn) as curs:
-        curs.execute('''select uid,password_hash
-                            FROM user
-                            WHERE email = %s''',
-                            [email])
-        return curs.fetchone()
 def delete_establishment(conn, eid):
     '''Deletes an establishment from the hotel/restaurant/activity tables
         and the general establishment table by eid.'''
